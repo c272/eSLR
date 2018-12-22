@@ -11,7 +11,7 @@ namespace emuSLR
         //Defining open CPU registers.
         public ushort PC; //Program counter.
         public ushort SP; //Stack pointer.
-        public ushort A, B, C, D, E, H, L; //General purpose registers.
+        public byte A, B, C, D, E, H, L; //General purpose registers.
         public RegisterFlags flags = new RegisterFlags(); //Flags (ZF, OF, HCF, CF).
     }
 }
