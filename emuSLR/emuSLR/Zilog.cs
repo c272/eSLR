@@ -88,7 +88,15 @@ namespace emuSLR
 
             //Saving.
             reg.A = Utils.ConvertToByte(bits);
+
+            //Incrementing ticks.
+            Clock.Tick(6);
         }
 
+        //LD (nn) SP
+        //Save SP into a given 16bit address.
+        public void LDnnSP(ushort n)
+        {
+        }
     }
 }
