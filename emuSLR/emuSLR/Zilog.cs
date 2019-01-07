@@ -97,6 +97,31 @@ namespace emuSLR
         //Save SP into a given 16bit address.
         public void LDnnSP(ushort n)
         {
+            //Just saving the upper 8 bits? Memory locations are only a byte, address this issue later.
+            byte a=0x0, b=0x0;
+            Utils.Splitx16(reg.SP, ref a, ref b);
+            SaveByte(a, n);
+            Clock.Tick(2);
+        }
+
+        //ADD HL, BC
+        //Adds BC to HL and saves.
+        public void ADDHLBC()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            ushort BC = Utils.ConcatBytes(reg.B, reg.C);
+            HL += BC;
+
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(4);
+        }
+
+        //LD A, (BC)
+        //Loads data into A from address given by BC.
+        public void LDAbc()
+        {
+            ushort BC = Utils.ConcatBytes(reg.B, reg.C);
+            //todo
         }
     }
 }
