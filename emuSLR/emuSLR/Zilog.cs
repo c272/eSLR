@@ -121,7 +121,63 @@ namespace emuSLR
         public void LDAbc()
         {
             ushort BC = Utils.ConcatBytes(reg.B, reg.C);
-            //todo
+            LoadByte(reg.A, BC);
+            Clock.Tick(2);
         }
+
+        //DEC BC
+        //Decrements the 16-bit whole of BC and saves.
+        public void DECBC()
+        {
+            ushort BC = Utils.ConcatBytes(reg.B, reg.C);
+            BC--;
+            Utils.Splitx16(BC, ref reg.B, ref reg.C);
+            Clock.Tick(3);
+        }
+
+        //INC C
+        //Increments register C.
+        public void INCC()
+        {
+            reg.C++;
+            Clock.Tick(1);
+        }
+
+        //DEC C
+        //Decrements register C.
+        public void DECC()
+        {
+            reg.C--;
+            Clock.Tick(1);
+        }
+
+        //LD C, n
+        //Load 8-bit immediate into C.
+        public void LDCn(ushort n)
+        {
+            LoadByte(reg.C, n);
+        }
+
+        //RRC A
+        //Rotate A right with carry flag.
+        public void RRCA()
+        {
+            byte LSB = (byte)((reg.A >> 8) & 0xFFu);
+            bool MSB = reg.flags.CFlag;
+            reg.flags.CFlag = Convert.ToBoolean(LSB);
+
+            //Shifting bits, correcting first bit.
+            reg.A = (byte)(reg.A >> 1);
+            BitArray bits = Utils.ByteToArray(reg.A);
+            bits[7] = MSB;
+
+            //Saving.
+            reg.A = Utils.ConvertToByte(bits);
+
+            //Incrementing ticks.
+            Clock.Tick(6);
+        }
+
+        //
     }
 }
