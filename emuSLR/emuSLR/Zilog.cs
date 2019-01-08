@@ -178,6 +178,14 @@ namespace emuSLR
             Clock.Tick(6);
         }
 
-        //
+        //STOP
+        //Stop processor.
+        public void STOP()
+        {
+            //Terminate processor, send termination signal.
+            state = State.ProcessorStates.TERMINATED;
+        }
+
+        //LD DE, nn
     }
 }
