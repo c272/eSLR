@@ -321,8 +321,118 @@ namespace emuSLR
             {
                 reg.PC += n;
             }
+            Clock.Tick(2);
         }
 
-        //
+        //LD HL, nn
+        //16-bit immediate load into HL.
+        public void LDHLnn(ushort n)
+        {
+            Utils.Splitx16(n, ref reg.H, ref reg.L);
+            Clock.Tick(1);
+        }
+
+        //LDI (HL), A
+        //Save A to address pointed by HL, increment HL.
+        public void LDIHLA()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            SaveByte(reg.A, HL);
+            HL++;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(3);
+        }
+
+        //INC HL
+        //Increment 16-bit HL.
+        public void INCHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            HL++;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(2);
+        }
+
+        //INC H
+        //Increment 8bit register H.
+        public void INCH()
+        {
+            reg.H++;
+            Clock.Tick(1);
+        }
+
+        //DEC H
+        public void DECH()
+        {
+            reg.H--;
+            Clock.Tick(1);
+        }
+
+        //LD H, n
+        //Load 8bit immediate into H.
+        public void LDHn(byte n)
+        {
+            reg.H = n;
+            Clock.Tick(1);
+        }
+
+        //DAA
+        //Corrects addition results for BCD (instructions below, todo.)
+        public void DAA()
+        {
+            //if the least significant four bits of A contain a non-BCD digit (i. e. it is greater than 9) or the H flag is set, 
+            //then $06 is added to the register. Then the four most significant bits are checked. If this more significant digit 
+            //also happens to be greater than 9 or the C flag is set, then $60 is added.
+        }
+
+        //JR Z, n
+        //Relative jump by signed immediate if the last result was zero.
+        public void JRZn(byte n)
+        {
+            if (reg.flags.ZeroFlag)
+            {
+                reg.PC += n;
+            }
+            Clock.Tick(2);
+        }
+        
+        //ADD HL HL
+        //Add 16 bit HL to 16 bit HL.
+        public void ADDHLHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            HL += HL;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(2);
+        }
+
+        //LDI A, (HL)
+        //Load A from address pointed to by HL, and then increment HL.
+        public void LDIAHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            reg.A = LoadByte(HL);
+            HL++;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(2);
+        }
+
+        //DEC HL
+        //Decrement 16-bit HL.
+        public void DECHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            HL--;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(1);
+        }
+
+        //INC L
+        //Increment 8bit register L.
+        public void INCL()
+        {
+            reg.L++;
+            Clock.Tick(1);
+        }
     }
 }
