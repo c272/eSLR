@@ -23,10 +23,10 @@ namespace emuSLR
 
         //LD BC, nn
         //16 bit immediate load into BC.
-        public void LDBCnn(byte a, byte b)
+        public void LDBCnn(ushort n)
         {
-            reg.A = a;
-            reg.B = b;
+            ushort BC = Loadx16(n);
+            Utils.Splitx16(BC, ref reg.B, ref reg.C);
             Clock.Tick(2);
         }
 
@@ -97,10 +97,10 @@ namespace emuSLR
         //Save SP into a given 16bit address.
         public void LDnnSP(ushort n)
         {
-            //Just saving the upper 8 bits? Memory locations are only a byte, address this issue later.
+            //Saving the x16 in memory at location n and n+1.
             byte a=0x0, b=0x0;
             Utils.Splitx16(reg.SP, ref a, ref b);
-            SaveByte(a, n);
+            Savex16(a, n);
             Clock.Tick(2);
         }
 
@@ -121,7 +121,7 @@ namespace emuSLR
         public void LDAbc()
         {
             ushort BC = Utils.ConcatBytes(reg.B, reg.C);
-            LoadByte(reg.A, BC);
+            reg.A = LoadByte(BC);
             Clock.Tick(2);
         }
 
@@ -155,7 +155,7 @@ namespace emuSLR
         //Load 8-bit immediate into C.
         public void LDCn(ushort n)
         {
-            LoadByte(reg.C, n);
+            reg.C = LoadByte(n);
         }
 
         //RRC A
@@ -184,8 +184,103 @@ namespace emuSLR
         {
             //Terminate processor, send termination signal.
             state = State.ProcessorStates.TERMINATED;
+            Clock.Tick(1);
         }
 
         //LD DE, nn
+        //16-bit immediate load into BC.
+        public void LDDEnn(ushort n)
+        {
+            ushort DE = Loadx16(n);
+            Utils.Splitx16(DE, ref reg.D, ref reg.E);
+            Clock.Tick(2);
+        }
+
+        //LD (DE) A
+        //Save A to address pointed to by DE.
+        public void LDDEA()
+        {
+            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
+            SaveByte(reg.A, DE);
+            Clock.Tick(2);
+        }
+
+        //INC DE
+        //Increments registers DE as a whole.
+        public void INCDE()
+        {
+            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
+            DE++;
+            Utils.Splitx16(DE, ref reg.D, ref reg.E);
+            Clock.Tick(2);
+        }
+
+        //INC D
+        //Increments register D.
+        public void INCD()
+        {
+            reg.D++;
+            Clock.Tick(1);
+        }
+
+        //DEC D
+        //Decrements register D.
+        public void DECD()
+        {
+            reg.D--;
+            Clock.Tick(1);
+        }
+
+        //LD D, n
+        //Load 8-bit immediate into D.
+        public void LDDn(ushort n)
+        {
+            reg.D = LoadByte(n);
+            Clock.Tick(2);
+        }
+
+        //RL A
+        //Rotate A left.
+        public void RLA()
+        {
+            reg.A = (byte)(reg.A << 1);
+            Clock.Tick(1);
+        }
+
+        //JR n
+        //Relative jump (adds to current PC), unconditional, to n.
+        public void JRn(byte n)
+        {
+            reg.PC += n;
+            Clock.Tick(1);
+        }
+
+        //ADD HL, DE
+        //Adds DE to HL as whole 16-bit nums.
+        public void ADDHLDE()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
+            HL += DE;
+            Clock.Tick(2);
+        }
+
+        //LD A, (DE)
+        public void LDADE()
+        {
+            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
+            reg.A = LoadByte(DE);
+            Clock.Tick(2);
+        }
+
+        //DEC DE
+        //Decrement 16-bit DE.
+        public void DECDE()
+        {
+            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
+            Utils.Splitx16(DE, ref reg.D, ref reg.E);
+        }
+
+
     }
 }
