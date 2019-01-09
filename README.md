@@ -7,7 +7,7 @@ Welcome! This repository is the home for eSLR, a C# SLR35902 emulator, a CPU ext
 ## Usage
 To use the CPU class library, set up your code like so:
   
-  ...
+    ...
   
     public void Main() {
       var myCPU = new eSLR();
