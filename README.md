@@ -6,21 +6,19 @@ Welcome! This repository is the home for eSLR, a C# SLR35902 emulator, a CPU ext
 
 ## Usage
 To use the CPU class library, set up your code like so:
-  using emuSLR;
-  using System;
   
   ...
   
-  public void Main() {
-    var myCPU = new eSLR();
-    myCPU.state = State.ProcessorStates.NORMAL;
-    
-    //Hook up your memory controller here.
-    myCPU.SaveByte = mySaveByteFunction;
-    ...
-    
-    //Set the PC to somewhere in memory and go!
-    myCPU.reg.PC = 0x0FF;
-    myCPU.exec();
-  }
+    public void Main() {
+      var myCPU = new eSLR();
+      myCPU.state = State.ProcessorStates.NORMAL;
+
+      //Hook up your memory controller here.
+      myCPU.SaveByte = mySaveByteFunction;
+      ...
+
+      //Set the PC to somewhere in memory and go!
+      myCPU.reg.PC = 0x0FF;
+      myCPU.exec();
+    }
   
