@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace emuSLR
 {
-    public partial class Main
+    public partial class eSLR
     {
         //Creating the registers.
         public Registers reg = new Registers();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace emuSLR
 {
     //All emulated Zilog functions are here instead of in Main.cs, to keep me sane.
-    public partial class Main
+    public partial class eSLR
     {
         ////////////////////////////////
         /// EMULATED ZILOG FUNCTIONS ///
@@ -434,5 +434,7 @@ namespace emuSLR
             reg.L++;
             Clock.Tick(1);
         }
+
+        
     }
 }
