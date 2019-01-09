@@ -25,8 +25,7 @@ namespace emuSLR
         //16 bit immediate load into BC.
         public void LDBCnn(ushort n)
         {
-            ushort BC = Loadx16(n);
-            Utils.Splitx16(BC, ref reg.B, ref reg.C);
+            Utils.Splitx16(n, ref reg.B, ref reg.C);
             Clock.Tick(2);
         }
 
@@ -118,7 +117,7 @@ namespace emuSLR
 
         //LD A, (BC)
         //Loads data into A from address given by BC.
-        public void LDAbc()
+        public void LDABC()
         {
             ushort BC = Utils.ConcatBytes(reg.B, reg.C);
             reg.A = LoadByte(BC);
@@ -153,9 +152,10 @@ namespace emuSLR
 
         //LD C, n
         //Load 8-bit immediate into C.
-        public void LDCn(ushort n)
+        public void LDCn(byte n)
         {
-            reg.C = LoadByte(n);
+            reg.C = n;
+            Clock.Tick(1);
         }
 
         //RRC A
@@ -191,8 +191,7 @@ namespace emuSLR
         //16-bit immediate load into BC.
         public void LDDEnn(ushort n)
         {
-            ushort DE = Loadx16(n);
-            Utils.Splitx16(DE, ref reg.D, ref reg.E);
+            Utils.Splitx16(n, ref reg.D, ref reg.E);
             Clock.Tick(2);
         }
 
@@ -233,10 +232,10 @@ namespace emuSLR
 
         //LD D, n
         //Load 8-bit immediate into D.
-        public void LDDn(ushort n)
+        public void LDDn(byte n)
         {
-            reg.D = LoadByte(n);
-            Clock.Tick(2);
+            reg.D = n;
+            Clock.Tick(1);
         }
 
         //RL A
@@ -279,8 +278,51 @@ namespace emuSLR
         {
             ushort DE = Utils.ConcatBytes(reg.D, reg.E);
             Utils.Splitx16(DE, ref reg.D, ref reg.E);
+            Clock.Tick(1);
         }
 
+        //INC E
+        //Increments register E.
+        public void INCE()
+        {
+            reg.E++;
+            Clock.Tick(1);
+        }
 
+        //DEC E
+        //Decrements register E.
+        public void DECE()
+        {
+            reg.E--;
+            Clock.Tick(1);
+        }
+
+        //LD E, n
+        //Loads 8-bit immediate n into E.
+        public void LDEn(byte n)
+        {
+            reg.E = n;
+            Clock.Tick(1);
+        }
+
+        //RR A
+        //Rotate A right.
+        public void RRA()
+        {
+            reg.A = (byte)(reg.A >> 1);
+            Clock.Tick(1);
+        }
+        
+        //JR NZ, n
+        //Relative jump by signed immediate if the Zero flag is off. (last result not zero)
+        public void JRNZn(byte n)
+        {
+            if (reg.flags.ZeroFlag==false)
+            {
+                reg.PC += n;
+            }
+        }
+
+        //
     }
 }
