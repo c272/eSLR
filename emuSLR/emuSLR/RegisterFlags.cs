@@ -34,8 +34,8 @@ namespace emuSLR
             }
         }
 
-        //Public accessor for the OperationFlag.
-        public bool OpFlag
+        //Public accessor for the negative flag.
+        public bool NFlag
         {
             get
             {

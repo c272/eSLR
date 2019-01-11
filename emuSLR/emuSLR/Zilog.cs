@@ -103,18 +103,6 @@ namespace emuSLR
             Clock.Tick(2);
         }
 
-        //ADD HL, BC
-        //Adds BC to HL and saves.
-        public void ADDHLBC()
-        {
-            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
-            ushort BC = Utils.ConcatBytes(reg.B, reg.C);
-            HL += BC;
-
-            Utils.Splitx16(HL, ref reg.H, ref reg.L);
-            Clock.Tick(4);
-        }
-
         //LD A, (BC)
         //Loads data into A from address given by BC.
         public void LDABC()
@@ -254,16 +242,6 @@ namespace emuSLR
             Clock.Tick(1);
         }
 
-        //ADD HL, DE
-        //Adds DE to HL as whole 16-bit nums.
-        public void ADDHLDE()
-        {
-            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
-            ushort DE = Utils.ConcatBytes(reg.D, reg.E);
-            HL += DE;
-            Clock.Tick(2);
-        }
-
         //LD A, (DE)
         public void LDADE()
         {
@@ -396,12 +374,12 @@ namespace emuSLR
             Clock.Tick(2);
         }
         
-        //ADD HL HL
-        //Add 16 bit HL to 16 bit HL.
-        public void ADDHLHL()
+        //ADD HL [x].
+        //Adds a value to HL.
+        public void ADDHL(ushort val)
         {
             ushort HL = Utils.ConcatBytes(reg.H, reg.L);
-            HL += HL;
+            HL += val;
             Utils.Splitx16(HL, ref reg.H, ref reg.L);
             Clock.Tick(2);
         }
@@ -435,6 +413,108 @@ namespace emuSLR
             Clock.Tick(1);
         }
 
-        
+        //DEC L
+        //Decrement 8bit register L.
+        public void DECL()
+        {
+            reg.L--;
+            Clock.Tick(1);
+        }
+
+        //LD L, n
+        //8bit immediate load into L.
+        public void LDLn(byte n)
+        {
+            reg.L = n;
+            Clock.Tick(2);
+        }
+
+        //CPL
+        //Complement logical NOT on A. (Basically just XOR with 0xFF)
+        public void CPL()
+        {
+            reg.A = (byte)(reg.A ^ 0xFF);
+            Clock.Tick(1);
+        }
+
+        //JR NC, n
+        //Relative jump by immediate if carry flag off.
+        public void JRNCn(byte n)
+        {
+            if (reg.flags.CFlag==true)
+            {
+                reg.PC += n;
+            }
+            Clock.Tick(2);
+        }
+
+        //LD SP, nn
+        //Load 16bit immediate into SP.
+        public void LDSPnn(ushort n)
+        {
+            reg.SP = n;
+            Clock.Tick(1);
+        }
+
+        //LDD (HL), A
+        //Save A to address pointed by HL, decrement HL.
+        public void LDDHLA()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            SaveByte(reg.A, HL);
+            HL--;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(3);
+        }
+
+        //INC SP
+        //Increment stack pointer.
+        public void INCSP()
+        {
+            reg.SP++;
+            Clock.Tick(1);
+        }
+
+        //INC (HL)
+        //Increment value pointed to by HL.
+        public void INCatHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            byte n = LoadByte(HL);
+            n++;
+            SaveByte(n, HL);
+            Clock.Tick(2);
+        }
+
+        //DEC (HL)
+        //Decrement value pointed to by HL.
+        public void DECatHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            byte n = LoadByte(HL);
+            n--;
+            SaveByte(n, HL);
+            Clock.Tick(2);
+        }
+
+        //LD (HL) n
+        //Load 8bit immediate into address at HL.
+        public void LDHLn(byte n)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            SaveByte(n, HL);
+        }
+
+        //SCF
+        //Set Carry Flag.
+        public void SCF()
+        {
+            //This operation also clears H and N.
+            reg.flags.CFlag = true;
+            reg.flags.NFlag = false;
+            reg.H = 0x0;
+        }
+
+        //
     }
 }
