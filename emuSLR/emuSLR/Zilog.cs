@@ -44,6 +44,7 @@ namespace emuSLR
         {
             ushort bc = (ushort)(Utils.ConcatBytes(reg.B, reg.C)+1);
             Utils.Splitx16(bc, ref reg.B, ref reg.C);
+            reg.flags.NFlag = false;
             Clock.Tick(4);
         }
 
@@ -52,6 +53,7 @@ namespace emuSLR
         public void INCB()
         {
             reg.B++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -87,6 +89,10 @@ namespace emuSLR
 
             //Saving.
             reg.A = Utils.ConvertToByte(bits);
+
+            //Resetting H and N flags.
+            reg.H = 0x0;
+            reg.flags.NFlag = false;
 
             //Incrementing ticks.
             Clock.Tick(6);
@@ -127,6 +133,7 @@ namespace emuSLR
         public void INCC()
         {
             reg.C++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -161,6 +168,10 @@ namespace emuSLR
 
             //Saving.
             reg.A = Utils.ConvertToByte(bits);
+
+            //Resetting H and N flags.
+            reg.H = 0x0;
+            reg.flags.NFlag = false;
 
             //Incrementing ticks.
             Clock.Tick(6);
@@ -199,6 +210,7 @@ namespace emuSLR
             ushort DE = Utils.ConcatBytes(reg.D, reg.E);
             DE++;
             Utils.Splitx16(DE, ref reg.D, ref reg.E);
+            reg.flags.NFlag = false;
             Clock.Tick(2);
         }
 
@@ -207,6 +219,7 @@ namespace emuSLR
         public void INCD()
         {
             reg.D++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -231,6 +244,11 @@ namespace emuSLR
         public void RLA()
         {
             reg.A = (byte)(reg.A << 1);
+
+            //Resetting H and N flags.
+            reg.H = 0x0;
+            reg.flags.NFlag = false;
+
             Clock.Tick(1);
         }
 
@@ -264,6 +282,7 @@ namespace emuSLR
         public void INCE()
         {
             reg.E++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -288,6 +307,11 @@ namespace emuSLR
         public void RRA()
         {
             reg.A = (byte)(reg.A >> 1);
+
+            //Resetting H and N flags.
+            reg.H = 0x0;
+            reg.flags.NFlag = false;
+            
             Clock.Tick(1);
         }
         
@@ -328,6 +352,7 @@ namespace emuSLR
             ushort HL = Utils.ConcatBytes(reg.H, reg.L);
             HL++;
             Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            reg.flags.NFlag = false;
             Clock.Tick(2);
         }
 
@@ -336,6 +361,7 @@ namespace emuSLR
         public void INCH()
         {
             reg.H++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -410,6 +436,7 @@ namespace emuSLR
         public void INCL()
         {
             reg.L++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -472,6 +499,7 @@ namespace emuSLR
         public void INCSP()
         {
             reg.SP++;
+            reg.flags.NFlag = false;
             Clock.Tick(1);
         }
 
@@ -483,6 +511,7 @@ namespace emuSLR
             byte n = LoadByte(HL);
             n++;
             SaveByte(n, HL);
+            reg.flags.NFlag = false;
             Clock.Tick(2);
         }
 
@@ -503,6 +532,7 @@ namespace emuSLR
         {
             ushort HL = Utils.ConcatBytes(reg.H, reg.L);
             SaveByte(n, HL);
+            Clock.Tick(2);
         }
 
         //SCF
@@ -513,6 +543,202 @@ namespace emuSLR
             reg.flags.CFlag = true;
             reg.flags.NFlag = false;
             reg.H = 0x0;
+            Clock.Tick(2);
+        }
+
+        //JR C, n
+        //Relative jump to immediate if carry is set.
+        public void JRCn(byte n)
+        {
+            if (reg.flags.CFlag)
+            {
+                reg.PC += n;
+            }
+            Clock.Tick(2);
+        }
+
+        //ADD HL SP
+        //Add 16bit SP to HL.
+        public void ADDHLSP()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            HL += reg.SP;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(2);
+        }
+
+        //LDD A, (HL)
+        //Load A from address pointed to by HL, then decrement HL.
+        public void LDDAHL()
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            reg.A = LoadByte(HL);
+            HL--;
+            Utils.Splitx16(HL, ref reg.H, ref reg.L);
+            Clock.Tick(3);
+        }
+
+        //DEC SP
+        //Decrement 16bit SP.
+        public void DECSP()
+        {
+            reg.SP--;
+            Clock.Tick(1);
+        }
+
+        //INC A
+        //Increment A.
+        public void INCA()
+        {
+            reg.A++;
+            Clock.Tick(1);
+        }
+
+        //DEC A
+        //Decrement A.
+        public void DECA()
+        {
+            reg.A--;
+            Clock.Tick(1);
+        }
+
+        //LD A, n
+        //Load 8bit immediate into A.
+        public void LDAn(byte n)
+        {
+            reg.A = n;
+            Clock.Tick(1);
+        }
+
+        //CCF
+        //Clear carry flag.
+        public void CCF()
+        {
+            reg.flags.CFlag = false;
+            Clock.Tick(1);
+        }
+
+        //LD X, X
+        //Copy 8bit register to 8bit register.
+        public void LDXX(ref byte reg, ref byte regtocopy)
+        {
+            reg = regtocopy;
+            Clock.Tick(1);
+        }
+
+        //LD X, (HL)
+        //Copy value pointed by HL to given register..
+        public void LDXHL(ref byte register)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            register = LoadByte(HL);
+            Clock.Tick(2);
+        }
+
+        //LD (HL) X
+        //Copy given register to address pointed by HL.
+        public void LDHLX(ref byte register)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            SaveByte(register, HL);
+            Clock.Tick(1);
+        }
+
+        //HALT
+        //Halts the processor.
+        public void HALT()
+        {
+            state = State.ProcessorStates.HALTED;
+            Clock.Tick(1);
+        }
+
+        //ADD X X
+        //Add given register to other given register.
+        public void ADDXX(ref byte reg, ref byte regtoadd)
+        {
+            reg += regtoadd;
+            Clock.Tick(1);
+        }
+
+        //ADD X, HL
+        //Adds value pointed to by HL to given register.
+        public void ADDXHL(ref byte reg1)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            reg1 += LoadByte(HL);
+            Clock.Tick(2);
+        }
+
+        //ADC X, X
+        //Adds the two registers, and the carry flag, and sums to the first register.
+        public void ADCXX(ref byte reg1, ref byte reg2)
+        {
+            //TEST THIS!
+            reg1 += (byte)(reg2 + int.Parse(reg.flags.CFlag.ToString()));
+            Clock.Tick(3);
+        }
+
+        //ADC X, (HL)
+        //Adds value pointed to by HL to given register, as well as carry flag.
+        public void ADCXHL(ref byte reg1)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            byte reg2 = LoadByte(HL);
+            //TEST THIS!
+            reg1 += (byte)(reg2 + int.Parse(reg.flags.CFlag.ToString()));
+            Clock.Tick(3);
+        }
+
+        //SUB X, X
+        //Subtracts one register from another.
+        public void SUBXX(ref byte reg1, ref byte reg2)
+        {
+            reg1 -= reg2;
+            Clock.Tick(1);
+        }
+
+        //SUB X, (HL)
+        //Subtracts value pointed to by HL from given register.
+        public void SUBXHL(ref byte reg1)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            byte reg2 = LoadByte(HL);
+            reg1 -= reg2;
+            Clock.Tick(2);
+        }
+
+        //SBC X, X
+        //Subtract register and carry flag from another register.
+        public void SBCXX(ref byte reg1, ref byte reg2)
+        {
+            //TEST THIS!
+            reg1 -= (byte)(reg2 - int.Parse(reg.flags.CFlag.ToString()));
+            Clock.Tick(2);
+        }
+
+        //SBC X, (HL)
+        //Subtract HL and carry flag from given register.
+        public void SCBXHL(ref byte reg1)
+        {
+            ushort HL = Utils.ConcatBytes(reg.H, reg.L);
+            byte reg2 = LoadByte(HL);
+            //TEST THIS!
+            reg1 -= (byte)(reg2 - int.Parse(reg.flags.CFlag.ToString()));
+            Clock.Tick(3);
+        }
+
+        //AND X
+        //Compares given register to A using Logical AND.
+        public void ANDX(ref byte reg1)
+        {
+            if (reg.A!=0x0 && reg1!=0x0)
+            {
+                reg.A = 1;
+            } else
+            {
+                reg.A = 0;
+            }
+            Clock.Tick(2);
         }
 
         //

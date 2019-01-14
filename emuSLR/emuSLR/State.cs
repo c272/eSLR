@@ -14,7 +14,8 @@ namespace emuSLR
             TERMINATED,
             NORMAL,
             ERROR,
-            EXPECTING_CBP
+            EXPECTING_CBP,
+            HALTED
         }
     }
 }
